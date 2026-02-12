@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Подбор модели</title>
+    <style>
+        body { background: #0d1117; color: white; font-family: sans-serif; display: flex; justify-content: center; padding: 20px; margin: 0; }
+        .card { background: #161b22; padding: 30px; border-radius: 20px; width: 100%; max-width: 550px; border: 1px solid #30363d; box-sizing: border-box; position: relative; }
+        .progress { color: #8b949e; font-size: 0.9rem; margin-bottom: 10px; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
+        h2 { color: #007bff; font-size: 1.6rem; margin-bottom: 25px; text-align: center; line-height: 1.2; }
+        .step { display: none; }
+        .active { display: block; }
+        .option { background: #21262d; border: 2px solid #30363d; padding: 18px; margin: 12px 0; border-radius: 12px; cursor: pointer; font-size: 1.1rem; transition: 0.2s; text-align: center; -webkit-tap-highlight-color: transparent; }
+        .option:hover { border-color: #444; }
+        .option.selected { border-color: #007bff; background: rgba(0, 123, 255, 0.1); }
+        .btn { width: 100%; background: #007bff; color: white; border: none; padding: 20px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 1.2rem; margin-top: 10px; }
+        .btn:disabled { background: #30363d; opacity: 0.5; cursor: not-allowed; }
+        .res-list { color: #e6edf3; font-size: 1.1rem; line-height: 1.7; text-align: left; background: #0d1117; padding: 20px; border-radius: 12px; border: 1px solid #30363d; }
+        b { color: #007bff; font-size: 1.2rem; }
+        .model-item { margin-bottom: 10px; padding-left: 15px; border-left: 3px solid #007bff; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div id="progBar" class="progress">Прогресс: <span id="current">1</span> из 7</div>
+
+    <div id="step1" class="step active">
+        <h2>1. Какой вид транспорта ищем?</h2>
+        <div class="option" onclick="pick(1, 'pit', this)">Питбайк (легкий и компактный)</div>
+        <div class="option" onclick="pick(1, 'mid', this)">Эндуро (универсальный)</div>
+        <div class="option" onclick="pick(1, 'moto', this)">Мотоцикл</div>
+        <button class="btn" onclick="next()" disabled>Далее</button>
+    </div>
+
+    <div id="step2" class="step">
+        <h2>2. Нужены ли ПТС/номера?</h2>
+        <div class="option" onclick="pick(2, 'no', this)">Нет (только леса и поля)</div>
+        <div class="option" onclick="pick(2, 'maybe', this)">Желательно</div>
+        <div class="option" onclick="pick(2, 'yes', this)">Да (ездить по дороге)</div>
+        <button class="btn" onclick="next()" disabled>Далее</button>
+    </div>
+
+    <div id="step3" class="step">
+        <h2>3. Какую скорость хотели бы?</h2>
+        <div class="option" onclick="pick(3, 'slow', this)">70-80 км/ч</div>
+        <div class="option" onclick="pick(3, 'med', this)">90-110 км/ч</div>
+        <div class="option" onclick="pick(3, 'fast', this)">120+ км/ч</div>
+        <button class="btn" onclick="next()" disabled>Далее</button>
+    </div>
+
+    <div id="step4" class="step">
+        <h2>4. Ваш опыт вождения?</h2>
+        <div class="option" onclick="pick(4, 'new', this)">Не разу не катался</div>
+        <div class="option" onclick="pick(4, 'mid', this)">Средний (катался пару раз)</div>
+        <div class="option" onclick="pick(4, 'pro', this)">Опытный (катался часто)</div>
+        <button class="btn" onclick="next()" disabled>Далее</button>
+    </div>
+
+    <div id="step5" class="step">
+        <h2>5. Какие колеса хотели бы?</h2>
+        <div class="option" onclick="pick(5, 'small', this)">17/14 (классика питбайка)</div>
+        <div class="option" onclick="pick(5, 'mid', this)">19/16 (средние колеса)</div>
+        <div class="option" onclick="pick(5, 'big', this)">21/18 (большие колеса)</div>
+        <button class="btn" onclick="next()" disabled>Далее</button>
+    </div>
+<div id="step6" class="step">
+        <h2>6. Какой у вас рост?</h2>
+        <div class="option" onclick="pick(6, 'short', this)"> До 165 см</div>
+        <div class="option" onclick="pick(6, 'normal', this)">165 — 180 см</div>
+        <div class="option" onclick="pick(6, 'tall', this)">От 180 см и выше</div>
+        <button class="btn" onclick="next()" disabled>Далее</button>
+    </div>
+
+    <div id="step7" class="step">
+        <h2>7. Бюджет на покупку?</h2>
+        <div class="option" onclick="pick(7, 'low', this)">До 120 000 ₽</div>
+        <div class="option" onclick="pick(7, 'mid', this)">120 — 250 000 ₽</div>
+        <div class="option" onclick="pick(7, 'high', this)">Более 250 000 ₽</div>
+        <button class="btn" onclick="done()" disabled>Результат</button>
+    </div>
+
+    <div id="result" class="step">
+        <h2>Ваш результат:</h2>
+        <div id="resText" class="res-list"></div>
+<a href="index.html" class="btn" style="margin-top: 10px; text-decoration: none;">Главная страница</a>
+        <button class="btn" onclick="location.reload()" style="background:none; border:2px solid #007bff; color:#007bff; margin-top: 25px;">Пройти еще раз</button>
+    </div>
+</div>
+
+<script>
+    const catalog = [
+        { name: "Kayo Evolution YX125", type: "pit", budget: "low", pts: "no" },
+        { name: "BSE PH 125/150", type: "pit", budget: "low", pts: "no" },
+        { name: "Motoland Apex 125", type: "pit", budget: "low", pts: "no" },
+        { name: "YCF Big Mini 150", type: "pit", budget: "mid", pts: "no" },
+        { name: "Regulmoto Sport 003", type: "mid", budget: "mid", pts: "yes" },
+        { name: "Kayo T2 Enduro", type: "mid", budget: "mid", pts: "yes" },
+        { name: "Avantis A2", type: "mid", budget: "low", pts: "no" },
+        { name: "Hasky F7 250", type: "mid", budget: "high", pts: "no" },
+        { name: "BRZ X6S 300", type: "moto", budget: "high", pts: "no" },
+        { name: "Avantis Enduro 300 Pro", type: "moto", budget: "high", pts: "yes" },
+        { name: "Regulmoto Legend 300", type: "moto", budget: "mid", pts: "yes" },
+        { name: "Zuumav FX 300", type: "moto", budget: "high", pts: "no" }
+    ];
+
+    let userAnswers = {};
+    let currentStepNum = 1;
+
+    function pick(step, val, el) {
+        let stepDiv = document.getElementById('step' + step);
+        let options = stepDiv.getElementsByClassName('option');
+        for (let opt of options) opt.classList.remove('selected');
+        el.classList.add('selected');
+        userAnswers[step] = val;
+        stepDiv.querySelector('.btn').disabled = false;
+    }
+
+    function next() {
+        let currStep = document.getElementById('step' + currentStepNum);
+        let nextStep = document.getElementById('step' + (currentStepNum + 1));
+        if (nextStep) {
+            currStep.classList.remove('active');
+            nextStep.classList.add('active');
+            currentStepNum++;
+            document.getElementById('current').innerText = currentStepNum;
+        }
+    }
+
+    function done() {
+        document.getElementById('progBar').style.display = 'none';
+        document.getElementById('step7').classList.remove('active');
+        document.getElementById('result').classList.add('active');
+
+        const selectedType = userAnswers[1];
+        const selectedBudget = userAnswers[7];
+        const selectedPts = userAnswers[2];
+
+        let filtered = catalog.filter(m => 
+            m.type === selectedType && (m.budget === selectedBudget || m.pts === selectedPts)
+        );
+
+        if (filtered.length === 0) {
+            filtered = catalog.filter(m => m.type === selectedType);
+        }
+
+        let finalItems = filtered.slice(0, 3);
+        let resDiv = document.getElementById('resText');
+        
+        if (finalItems.length > 0) {
+            let html = "<b>Модели которые больше всего подходят вам:</b><br><br>";
+            finalItems.forEach(item => {
+                html += `<div class="model-item">${item.name}</div>`;
+            });
+            resDiv.innerHTML = html;
+        } else {
+            resDiv.innerHTML = "Подходящих моделей не найдено.";
+        }
+    }
+</script>
+
+</body>
+</html>
